@@ -93,3 +93,27 @@ EEG plot saved to eeg_filter.png
 
 ### 다음 실행
 `python test.py`를 실행할 때마다 `log.txt`에 자동 기록됩니다.
+
+---
+
+## 2026-10-15 10:20 UTC – 자동화 규칙(.clinerules) 구현
+
+### 작업 개요
+`.clinerules`에 정의되어 있으나 아직 구현되지 않았던 자동화 규칙을 `test.py`에 반영했습니다.
+
+### 변경 사항
+1. **단계별 진행 기록** – `log_progress()` 추가. 실행마다 `logs/progress.md`에 `## Run <timestamp>` 헤더와 단계(신호 생성 → 필터링 → 결과 정렬 → 완료)를 누적 기록합니다.
+2. **결과물 자동 정렬** – `prepare_run_dirs()` 추가. 실행마다 `outputs/<YYYYmmdd_HHMMSS>/figures/`(그래프), `outputs/<...>/data/`(CSV)로 분류 저장합니다.
+3. **데이터 저장** – `save_signals()` 추가. 시간축/원본/필터링 신호를 `eeg_signals.csv`로 저장해 재분석이 가능합니다.
+4. **경로 고정** – 모든 경로를 스크립트 위치 기준(`BASE_DIR`)으로 계산해 어느 디렉터리에서 실행해도 같은 위치에 저장됩니다.
+5. **헤드리스 지원** – `matplotlib.use("Agg")`로 디스플레이 없는 환경에서도 동작합니다.
+6. **로그 값 하드코딩 제거** – `log.txt` 기록 시 `30.0`, `4` 리터럴 대신 실제 파라미터 변수를 사용하고, 결과 폴더 경로를 함께 기록합니다.
+7. **파일 정리** – 기존 `log.txt` → `logs/log.txt`, 기존 `eeg_filter.png` → `outputs/20260405_legacy/figures/`로 이동. `requirements.txt`, `.gitignore` 추가.
+
+### 검증
+```bash
+pip install -r requirements.txt
+python test.py            # 저장소 루트에서 실행
+cd /tmp && python /path/to/webspace/test.py   # 다른 디렉터리에서 실행
+```
+두 경우 모두 `outputs/<timestamp>/` 아래에 그래프와 CSV가 생성되고, `logs/progress.md`와 `logs/log.txt`에 기록되는 것을 확인했습니다.
